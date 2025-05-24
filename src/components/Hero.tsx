@@ -1,15 +1,17 @@
-
 import React from 'react';
 import { Shield, Monitor, Heart, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import Navbar from './Navbar';
 
 const Hero = () => {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-green-600 text-white">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.1%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%220.1%22%3E%3Ccircle cx=%2230%22 cy=%2230%22 r=%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
       
-      <div className="relative container mx-auto px-6 py-20 lg:py-32">
+      <Navbar />
+      
+      <div className="relative container mx-auto px-6 py-20 lg:py-32 mt-20">
+        
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8 animate-fade-in">
             <div className="flex items-center space-x-2 text-blue-200">
@@ -29,12 +31,10 @@ const Hero = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/dashboard">
-                <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50 font-semibold px-8 py-3 rounded-full transition-all duration-300 hover:scale-105">
-                  View Dashboard
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
+              <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50 font-semibold px-8 py-3 rounded-full transition-all duration-300 hover:scale-105">
+                Start Your Journey
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
               <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-700 font-semibold px-8 py-3 rounded-full transition-all duration-300">
                 Watch Demo
               </Button>
