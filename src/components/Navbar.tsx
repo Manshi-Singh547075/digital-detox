@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Shield, Menu, User } from 'lucide-react';
+import { Shield, Menu, User, LogIn, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -8,8 +8,29 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 const Navbar = () => {
+  const handleLogin = () => {
+    console.log('Login clicked');
+    // For now, just log. In a real app, this would redirect to login page or open login modal
+  };
+
+  const handleSignUp = () => {
+    console.log('Sign Up clicked');
+    // For now, just log. In a real app, this would redirect to signup page or open signup modal
+  };
+
   return (
     <nav className="absolute top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20">
       <div className="container mx-auto px-6 py-4">
@@ -31,9 +52,6 @@ const Navbar = () => {
               Features
             </a>
             <a href="#" className="text-white hover:text-blue-200 transition-colors font-medium">
-              Pricing
-            </a>
-            <a href="#" className="text-white hover:text-blue-200 transition-colors font-medium">
               About
             </a>
             <a href="/dashboard" className="text-white hover:text-blue-200 transition-colors font-medium">
@@ -43,17 +61,52 @@ const Navbar = () => {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button 
-              variant="ghost" 
-              className="text-white hover:bg-white/20 hover:text-white border-white/30"
-            >
-              Log In
-            </Button>
-            <Button 
-              className="bg-white text-blue-700 hover:bg-blue-50 font-semibold"
-            >
-              Sign Up
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:bg-white/20 hover:text-white border-white/30"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Log In
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Login Required</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    To implement full authentication functionality, please connect your project to Supabase using the green Supabase button in the top right of the Lovable interface.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleLogin}>Continue</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  className="bg-white text-blue-700 hover:bg-blue-50 font-semibold"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Sign Up
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Sign Up</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    To implement full authentication functionality, please connect your project to Supabase using the green Supabase button in the top right of the Lovable interface.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleSignUp}>Continue</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
 
           {/* Mobile Menu */}
@@ -72,20 +125,17 @@ const Navbar = () => {
                   Features
                 </DropdownMenuItem>
                 <DropdownMenuItem className="hover:bg-white/20">
-                  Pricing
-                </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-white/20">
                   About
                 </DropdownMenuItem>
                 <DropdownMenuItem className="hover:bg-white/20">
                   Dashboard
                 </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-white/20">
-                  <User className="w-4 h-4 mr-2" />
+                <DropdownMenuItem className="hover:bg-white/20" onClick={handleLogin}>
+                  <LogIn className="w-4 h-4 mr-2" />
                   Log In
                 </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-white/20">
-                  <User className="w-4 h-4 mr-2" />
+                <DropdownMenuItem className="hover:bg-white/20" onClick={handleSignUp}>
+                  <UserPlus className="w-4 h-4 mr-2" />
                   Sign Up
                 </DropdownMenuItem>
               </DropdownMenuContent>
