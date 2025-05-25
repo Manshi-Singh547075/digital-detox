@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,7 @@ const Auth = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Redirect if already logged in
+  // Redirect if already logged in - let ProtectedRoute handle onboarding flow
   useEffect(() => {
     if (user) {
       navigate('/dashboard');
@@ -61,9 +60,9 @@ const Auth = () => {
       } else if (data.user) {
         toast({
           title: "Account created!",
-          description: "Welcome to DigitalDetox! You can now start tracking your digital wellness.",
+          description: "Welcome to DigitalDetox! Let's set up your profile.",
         });
-        navigate('/dashboard');
+        // ProtectedRoute will handle redirecting to profile setup
       }
     } catch (error) {
       toast({
@@ -105,7 +104,7 @@ const Auth = () => {
           title: "Welcome back!",
           description: "Successfully logged in to DigitalDetox.",
         });
-        navigate('/dashboard');
+        // ProtectedRoute will handle onboarding flow
       }
     } catch (error) {
       toast({
