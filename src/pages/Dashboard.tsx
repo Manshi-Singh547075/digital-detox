@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import UsageChart from '../components/dashboard/UsageChart';
@@ -7,17 +7,72 @@ import AIInsights from '../components/dashboard/AIInsights';
 import AppBreakdown from '../components/dashboard/AppBreakdown';
 import FamilyMonitoring from '../components/dashboard/FamilyMonitoring';
 import WellnessScore from '../components/dashboard/WellnessScore';
-import { Users, Activity, Brain, Shield } from 'lucide-react';
+import { Users, Activity, Brain, Shield, User } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Profile {
+  id: string;
+  username: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+  created_at: string;
+}
 
 const Dashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('week');
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    }
+  }, [user]);
+
+  const fetchProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user?.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+      } else {
+        setProfile(data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Digital Wellness Dashboard</h1>
-          <p className="text-gray-600">Track your digital habits and build healthier relationships with technology</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Welcome back, {profile?.full_name || user?.email}!
+              </h1>
+              <p className="text-gray-600">Track your digital habits and build healthier relationships with technology</p>
+            </div>
+            {profile && (
+              <Card className="p-4 bg-white/80 backdrop-blur-sm">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-blue-100 rounded-full p-2">
+                    <User className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">{profile.full_name}</p>
+                    <p className="text-sm text-gray-600">@{profile.username}</p>
+                  </div>
+                </div>
+              </Card>
+            )}
+          </div>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">

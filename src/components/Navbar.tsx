@@ -1,34 +1,32 @@
 
 import React from 'react';
-import { Shield, Menu, User, LogIn, UserPlus } from 'lucide-react';
+import { Shield, Menu, User, LogIn, UserPlus, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
-  const handleLogin = () => {
-    console.log('Login clicked');
-    // For now, just log. In a real app, this would redirect to login page or open login modal
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLoginClick = () => {
+    navigate('/auth');
   };
 
-  const handleSignUp = () => {
-    console.log('Sign Up clicked');
-    // For now, just log. In a real app, this would redirect to signup page or open signup modal
+  const handleSignUpClick = () => {
+    navigate('/auth');
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
   };
 
   return (
@@ -36,7 +34,7 @@ const Navbar = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo and Brand */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
             <div className="bg-gradient-to-r from-blue-400 to-green-400 rounded-lg p-2">
               <Shield className="w-6 h-6 text-white" />
             </div>
@@ -54,59 +52,62 @@ const Navbar = () => {
             <a href="#" className="text-white hover:text-blue-200 transition-colors font-medium">
               About
             </a>
-            <a href="/dashboard" className="text-white hover:text-blue-200 transition-colors font-medium">
-              Dashboard
-            </a>
+            {user && (
+              <button 
+                onClick={() => navigate('/dashboard')}
+                className="text-white hover:text-blue-200 transition-colors font-medium"
+              >
+                Dashboard
+              </button>
+            )}
           </div>
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    className="text-white hover:bg-white/20 hover:text-white border-white/30"
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Account
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  align="end" 
+                  className="bg-white/10 backdrop-blur-md border-white/20 text-white"
+                >
+                  <DropdownMenuItem className="hover:bg-white/20" onClick={() => navigate('/dashboard')}>
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-white/20" />
+                  <DropdownMenuItem className="hover:bg-white/20" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
                 <Button 
                   variant="ghost" 
                   className="text-white hover:bg-white/20 hover:text-white border-white/30"
+                  onClick={handleLoginClick}
                 >
                   <LogIn className="w-4 h-4 mr-2" />
                   Log In
                 </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Login Required</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    To implement full authentication functionality, please connect your project to Supabase using the green Supabase button in the top right of the Lovable interface.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleLogin}>Continue</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
                 <Button 
                   className="bg-white text-blue-700 hover:bg-blue-50 font-semibold"
+                  onClick={handleSignUpClick}
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
                   Sign Up
                 </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Sign Up</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    To implement full authentication functionality, please connect your project to Supabase using the green Supabase button in the top right of the Lovable interface.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleSignUp}>Continue</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu */}
@@ -127,17 +128,29 @@ const Navbar = () => {
                 <DropdownMenuItem className="hover:bg-white/20">
                   About
                 </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-white/20">
-                  Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-white/20" onClick={handleLogin}>
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Log In
-                </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-white/20" onClick={handleSignUp}>
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Sign Up
-                </DropdownMenuItem>
+                {user && (
+                  <DropdownMenuItem className="hover:bg-white/20" onClick={() => navigate('/dashboard')}>
+                    Dashboard
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator className="bg-white/20" />
+                {user ? (
+                  <DropdownMenuItem className="hover:bg-white/20" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                ) : (
+                  <>
+                    <DropdownMenuItem className="hover:bg-white/20" onClick={handleLoginClick}>
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Log In
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/20" onClick={handleSignUpClick}>
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Sign Up
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
