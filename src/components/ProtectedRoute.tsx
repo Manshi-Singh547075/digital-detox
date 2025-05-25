@@ -22,14 +22,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             .from('profiles')
             .select('full_name, username')
             .eq('id', user.id)
-            .single();
+            .maybeSingle();
 
-          if (error) {
+          if (error && error.code !== 'PGRST116') {
             console.error('Error fetching profile:', error);
+            setHasCompletedOnboarding(false);
+          } else if (!profile) {
+            // Profile doesn't exist, user needs to complete setup
+            console.log('No profile found, redirecting to profile setup');
             setHasCompletedOnboarding(false);
           } else {
             // Check if user has completed basic onboarding (has full_name and username)
             const isComplete = profile?.full_name && profile?.username;
+            console.log('Profile found:', profile, 'Is complete:', isComplete);
             setHasCompletedOnboarding(!!isComplete);
           }
         } catch (error) {
@@ -64,6 +69,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // If user hasn't completed onboarding and is not already on the profile setup page
   if (!hasCompletedOnboarding && location.pathname !== '/profile-setup') {
+    console.log('Redirecting to profile setup, hasCompletedOnboarding:', hasCompletedOnboarding);
     return <Navigate to="/profile-setup" replace />;
   }
 
