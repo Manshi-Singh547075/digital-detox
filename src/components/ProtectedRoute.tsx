@@ -33,6 +33,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
               concerns,
               has_children,
               children_ages,
+              current_screen_time,
+              device_usage,
+              app_preferences,
               onboarding_completed
             `)
             .eq('id', user.id)
@@ -48,13 +51,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             // Check if user has completed comprehensive onboarding
             // For comprehensive profile, we need digital wellness data
             const isOnboardingComplete = Boolean(
-              profile?.full_name && 
-              profile?.username && 
-              profile?.age &&
-              profile?.role &&
-              profile?.primary_goal &&
-              profile?.daily_screen_time_goal &&
-              profile?.onboarding_completed
+              profile.full_name && 
+              profile.username && 
+              profile.age &&
+              profile.role &&
+              profile.primary_goal &&
+              profile.daily_screen_time_goal &&
+              profile.onboarding_completed
             );
             console.log('Profile data:', profile);
             console.log('Is comprehensive onboarding complete:', isOnboardingComplete);

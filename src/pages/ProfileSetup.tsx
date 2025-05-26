@@ -50,14 +50,14 @@ const ProfileSetup = () => {
               ...prev,
               fullName: profile.full_name || user.user_metadata?.full_name || '',
               username: profile.username || user.user_metadata?.username || '',
-              age: profile.age || '',
+              age: profile.age?.toString() || '',
               role: profile.role || '',
               primaryGoal: profile.primary_goal || '',
-              dailyScreenTimeGoal: profile.daily_screen_time_goal || '',
+              dailyScreenTimeGoal: profile.daily_screen_time_goal?.toString() || '',
               concerns: profile.concerns || '',
               hasChildren: profile.has_children || false,
               childrenAges: profile.children_ages || '',
-              currentScreenTime: profile.current_screen_time || '',
+              currentScreenTime: profile.current_screen_time?.toString() || '',
               deviceUsage: profile.device_usage || '',
               appPreferences: profile.app_preferences || ''
             }));

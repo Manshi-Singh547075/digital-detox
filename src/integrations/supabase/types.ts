@@ -11,26 +11,59 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          age: number | null
+          app_preferences: string | null
           avatar_url: string | null
+          children_ages: string | null
+          concerns: string | null
           created_at: string
+          current_screen_time: number | null
+          daily_screen_time_goal: number | null
+          device_usage: string | null
           full_name: string | null
+          has_children: boolean | null
           id: string
+          onboarding_completed: boolean | null
+          primary_goal: string | null
+          role: string | null
           updated_at: string
           username: string | null
         }
         Insert: {
+          age?: number | null
+          app_preferences?: string | null
           avatar_url?: string | null
+          children_ages?: string | null
+          concerns?: string | null
           created_at?: string
+          current_screen_time?: number | null
+          daily_screen_time_goal?: number | null
+          device_usage?: string | null
           full_name?: string | null
+          has_children?: boolean | null
           id: string
+          onboarding_completed?: boolean | null
+          primary_goal?: string | null
+          role?: string | null
           updated_at?: string
           username?: string | null
         }
         Update: {
+          age?: number | null
+          app_preferences?: string | null
           avatar_url?: string | null
+          children_ages?: string | null
+          concerns?: string | null
           created_at?: string
+          current_screen_time?: number | null
+          daily_screen_time_goal?: number | null
+          device_usage?: string | null
           full_name?: string | null
+          has_children?: boolean | null
           id?: string
+          onboarding_completed?: boolean | null
+          primary_goal?: string | null
+          role?: string | null
           updated_at?: string
           username?: string | null
         }
