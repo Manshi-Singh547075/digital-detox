@@ -30,13 +30,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             setHasCompletedOnboarding(false);
           } else if (!profile) {
             // Profile doesn't exist, user needs to complete setup
-            console.log('No profile found, redirecting to profile setup');
+            console.log('No profile found, user needs to complete profile setup');
             setHasCompletedOnboarding(false);
           } else {
-            // Check if user has completed basic onboarding (has full_name and username)
-            const isComplete = profile?.full_name && profile?.username;
-            console.log('Profile found:', profile, 'Is complete:', isComplete);
-            setHasCompletedOnboarding(!!isComplete);
+            // Check if user has completed basic onboarding
+            // For a profile to be complete, we need at least full_name and username
+            const isProfileComplete = Boolean(profile?.full_name && profile?.username);
+            console.log('Profile found:', profile, 'Is complete:', isProfileComplete);
+            setHasCompletedOnboarding(isProfileComplete);
           }
         } catch (error) {
           console.error('Profile check error:', error);
@@ -53,6 +54,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
   }, [user, loading]);
 
+  // Show loading state while checking auth and profile
   if (loading || profileLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
@@ -65,6 +67,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
+  // Redirect to auth if not logged in
   if (!user) {
     console.log('No user found, redirecting to auth');
     return <Navigate to="/auth" replace />;

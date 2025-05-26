@@ -21,10 +21,9 @@ const Auth = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Redirect if already logged in - let ProtectedRoute handle onboarding flow
+  // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      // Let ProtectedRoute determine where to redirect based on profile completion
       navigate('/dashboard');
     }
   }, [user, navigate]);
@@ -34,6 +33,23 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
+      // First check if username already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (existingProfile) {
+        toast({
+          title: "Username taken",
+          description: "This username is already taken. Please choose another one.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -62,14 +78,15 @@ const Auth = () => {
       } else if (data.user) {
         toast({
           title: "🎉 Account created!",
-          description: "Welcome to DigitalDetox! Let's set up your personalized dashboard.",
+          description: "Welcome to DigitalDetox! Please complete your profile setup.",
         });
-        // ProtectedRoute will handle redirecting to profile setup or dashboard
+        // User will be redirected to profile setup by ProtectedRoute
       }
     } catch (error) {
+      console.error('Signup error:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: "An unexpected error occurred during signup",
         variant: "destructive",
       });
     } finally {
@@ -97,7 +114,7 @@ const Auth = () => {
         } else if (error.message.includes('Email not confirmed')) {
           toast({
             title: "Email not confirmed",
-            description: "Please check your email and click the confirmation link, or contact support.",
+            description: "Please check your email and click the confirmation link.",
             variant: "destructive",
           });
         } else {
@@ -112,12 +129,12 @@ const Auth = () => {
           title: "🚀 Welcome back!",
           description: "Successfully logged in to DigitalDetox.",
         });
-        // ProtectedRoute will handle onboarding flow
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: "An unexpected error occurred during login",
         variant: "destructive",
       });
     } finally {
@@ -223,10 +240,11 @@ const Auth = () => {
                       type="text"
                       placeholder="johndoe"
                       value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s+/g, ''))}
                       required
                       className="bg-white/10 border-white/30 text-white placeholder:text-white/70 h-12"
                     />
+                    <p className="text-xs text-blue-200">Username will be lowercase without spaces</p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-email" className="text-white">Email</Label>
@@ -249,8 +267,10 @@ const Auth = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      minLength={6}
                       className="bg-white/10 border-white/30 text-white placeholder:text-white/70 h-12"
                     />
+                    <p className="text-xs text-blue-200">Password must be at least 6 characters</p>
                   </div>
                   <Button
                     type="submit"
