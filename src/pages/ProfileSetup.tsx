@@ -24,7 +24,10 @@ const ProfileSetup = () => {
     dailyScreenTimeGoal: '',
     concerns: '',
     hasChildren: false,
-    childrenAges: ''
+    childrenAges: '',
+    currentScreenTime: '',
+    deviceUsage: '',
+    appPreferences: ''
   });
   
   const navigate = useNavigate();
@@ -32,14 +35,46 @@ const ProfileSetup = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Pre-populate data if available from signup
-    if (user?.user_metadata) {
-      setFormData(prev => ({
-        ...prev,
-        fullName: user.user_metadata.full_name || '',
-        username: user.user_metadata.username || ''
-      }));
-    }
+    // Pre-populate data if available from signup or existing profile
+    const loadExistingProfile = async () => {
+      if (user) {
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          if (profile) {
+            setFormData(prev => ({
+              ...prev,
+              fullName: profile.full_name || user.user_metadata?.full_name || '',
+              username: profile.username || user.user_metadata?.username || '',
+              age: profile.age || '',
+              role: profile.role || '',
+              primaryGoal: profile.primary_goal || '',
+              dailyScreenTimeGoal: profile.daily_screen_time_goal || '',
+              concerns: profile.concerns || '',
+              hasChildren: profile.has_children || false,
+              childrenAges: profile.children_ages || '',
+              currentScreenTime: profile.current_screen_time || '',
+              deviceUsage: profile.device_usage || '',
+              appPreferences: profile.app_preferences || ''
+            }));
+          } else if (user?.user_metadata) {
+            setFormData(prev => ({
+              ...prev,
+              fullName: user.user_metadata.full_name || '',
+              username: user.user_metadata.username || ''
+            }));
+          }
+        } catch (error) {
+          console.error('Error loading profile:', error);
+        }
+      }
+    };
+
+    loadExistingProfile();
   }, [user]);
 
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -50,7 +85,7 @@ const ProfileSetup = () => {
   };
 
   const handleNext = () => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -68,6 +103,8 @@ const ProfileSetup = () => {
       case 2:
         return formData.primaryGoal && formData.dailyScreenTimeGoal;
       case 3:
+        return formData.currentScreenTime && formData.deviceUsage;
+      case 4:
         return true; // Optional step
       default:
         return false;
@@ -79,15 +116,26 @@ const ProfileSetup = () => {
     setIsLoading(true);
 
     try {
-      console.log('Starting profile setup for user:', user?.id);
+      console.log('Starting comprehensive profile setup for user:', user?.id);
       
-      // First update the profiles table with basic info
+      // Save comprehensive profile data
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
           id: user?.id,
           full_name: formData.fullName,
           username: formData.username,
+          age: parseInt(formData.age),
+          role: formData.role,
+          primary_goal: formData.primaryGoal,
+          daily_screen_time_goal: parseInt(formData.dailyScreenTimeGoal),
+          concerns: formData.concerns,
+          has_children: formData.hasChildren,
+          children_ages: formData.childrenAges,
+          current_screen_time: parseInt(formData.currentScreenTime),
+          device_usage: formData.deviceUsage,
+          app_preferences: formData.appPreferences,
+          onboarding_completed: true,
           updated_at: new Date().toISOString()
         });
 
@@ -96,7 +144,7 @@ const ProfileSetup = () => {
         throw profileError;
       }
 
-      console.log('Profile updated successfully');
+      console.log('Comprehensive profile saved successfully');
 
       toast({
         title: "🎉 Welcome to DigitalDetox!",
@@ -119,7 +167,8 @@ const ProfileSetup = () => {
   const steps = [
     { number: 1, title: "Basic Info", icon: User },
     { number: 2, title: "Your Goals", icon: Target },
-    { number: 3, title: "Family & Preferences", icon: Users }
+    { number: 3, title: "Digital Habits", icon: Clock },
+    { number: 4, title: "Preferences", icon: Users }
   ];
 
   return (
@@ -168,12 +217,13 @@ const ProfileSetup = () => {
         <Card className="bg-white/10 backdrop-blur-md border-white/20">
           <CardHeader>
             <CardTitle className="text-white text-center text-2xl">
-              Step {currentStep} of 3: {steps[currentStep - 1].title}
+              Step {currentStep} of 4: {steps[currentStep - 1].title}
             </CardTitle>
             <CardDescription className="text-blue-200 text-center text-lg">
               {currentStep === 1 && "Let's start with some basic information about you"}
               {currentStep === 2 && "What are your digital wellness goals?"}
-              {currentStep === 3 && "Tell us about your family and preferences"}
+              {currentStep === 3 && "Tell us about your current digital habits"}
+              {currentStep === 4 && "Final preferences and family information"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -224,7 +274,7 @@ const ProfileSetup = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="role" className="text-white text-lg">I am a... *</Label>
-                      <Select onValueChange={(value) => handleInputChange('role', value)} required>
+                      <Select onValueChange={(value) => handleInputChange('role', value)} value={formData.role} required>
                         <SelectTrigger className="bg-white/10 border-white/30 text-white h-12 text-lg">
                           <SelectValue placeholder="Select your role" />
                         </SelectTrigger>
@@ -246,7 +296,7 @@ const ProfileSetup = () => {
                 <div className="space-y-6">
                   <div className="space-y-4">
                     <Label htmlFor="primaryGoal" className="text-white text-lg">Primary Digital Wellness Goal *</Label>
-                    <Select onValueChange={(value) => handleInputChange('primaryGoal', value)} required>
+                    <Select onValueChange={(value) => handleInputChange('primaryGoal', value)} value={formData.primaryGoal} required>
                       <SelectTrigger className="bg-white/10 border-white/30 text-white h-12 text-lg">
                         <SelectValue placeholder="What's your main goal?" />
                       </SelectTrigger>
@@ -278,8 +328,53 @@ const ProfileSetup = () => {
                 </div>
               )}
 
-              {/* Step 3: Family & Preferences */}
+              {/* Step 3: Digital Habits */}
               {currentStep === 3 && (
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <Label htmlFor="currentScreenTime" className="text-white text-lg">Current Daily Screen Time (hours) *</Label>
+                    <Input
+                      id="currentScreenTime"
+                      type="number"
+                      placeholder="8"
+                      min="1"
+                      max="24"
+                      value={formData.currentScreenTime}
+                      onChange={(e) => handleInputChange('currentScreenTime', e.target.value)}
+                      required
+                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70 h-12 text-lg"
+                    />
+                    <p className="text-blue-200 text-sm">Be honest - this helps us create better recommendations</p>
+                  </div>
+                  <div className="space-y-4">
+                    <Label htmlFor="deviceUsage" className="text-white text-lg">Primary Device Usage *</Label>
+                    <Select onValueChange={(value) => handleInputChange('deviceUsage', value)} value={formData.deviceUsage} required>
+                      <SelectTrigger className="bg-white/10 border-white/30 text-white h-12 text-lg">
+                        <SelectValue placeholder="Select your primary device" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="smartphone">📱 Smartphone (Mobile-first)</SelectItem>
+                        <SelectItem value="laptop">💻 Laptop/Computer</SelectItem>
+                        <SelectItem value="tablet">📱 Tablet</SelectItem>
+                        <SelectItem value="multiple">🔄 Multiple devices equally</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-4">
+                    <Label htmlFor="appPreferences" className="text-white text-lg">Most Used App Categories</Label>
+                    <Textarea
+                      id="appPreferences"
+                      placeholder="e.g., Social media, streaming, productivity, games..."
+                      value={formData.appPreferences}
+                      onChange={(e) => handleInputChange('appPreferences', e.target.value)}
+                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70 min-h-[80px] text-lg"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Step 4: Preferences & Family */}
+              {currentStep === 4 && (
                 <div className="space-y-6">
                   <div className="space-y-4">
                     <Label className="text-white text-lg">Do you have children?</Label>
@@ -341,7 +436,7 @@ const ProfileSetup = () => {
                   </Button>
                 )}
                 
-                {currentStep < 3 ? (
+                {currentStep < 4 ? (
                   <Button
                     type="button"
                     onClick={handleNext}

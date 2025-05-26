@@ -18,10 +18,23 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const checkUserProfile = async () => {
       if (user) {
         try {
-          console.log('Checking profile for user:', user.id);
+          console.log('Checking comprehensive profile for user:', user.id);
+          
+          // Check for comprehensive profile data including digital wellness info
           const { data: profile, error } = await supabase
             .from('profiles')
-            .select('full_name, username')
+            .select(`
+              full_name, 
+              username,
+              age,
+              role,
+              primary_goal,
+              daily_screen_time_goal,
+              concerns,
+              has_children,
+              children_ages,
+              onboarding_completed
+            `)
             .eq('id', user.id)
             .maybeSingle();
 
@@ -29,15 +42,23 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             console.error('Error fetching profile:', error);
             setHasCompletedOnboarding(false);
           } else if (!profile) {
-            // Profile doesn't exist, user needs to complete setup
             console.log('No profile found, user needs to complete profile setup');
             setHasCompletedOnboarding(false);
           } else {
-            // Check if user has completed basic onboarding
-            // For a profile to be complete, we need at least full_name and username
-            const isProfileComplete = Boolean(profile?.full_name && profile?.username);
-            console.log('Profile found:', profile, 'Is complete:', isProfileComplete);
-            setHasCompletedOnboarding(isProfileComplete);
+            // Check if user has completed comprehensive onboarding
+            // For comprehensive profile, we need digital wellness data
+            const isOnboardingComplete = Boolean(
+              profile?.full_name && 
+              profile?.username && 
+              profile?.age &&
+              profile?.role &&
+              profile?.primary_goal &&
+              profile?.daily_screen_time_goal &&
+              profile?.onboarding_completed
+            );
+            console.log('Profile data:', profile);
+            console.log('Is comprehensive onboarding complete:', isOnboardingComplete);
+            setHasCompletedOnboarding(isOnboardingComplete);
           }
         } catch (error) {
           console.error('Profile check error:', error);
@@ -73,15 +94,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/auth" replace />;
   }
 
-  // If user hasn't completed onboarding and is not already on the profile setup page
+  // If user hasn't completed comprehensive onboarding and is not already on the profile setup page
   if (!hasCompletedOnboarding && location.pathname !== '/profile-setup') {
-    console.log('Redirecting to profile setup, hasCompletedOnboarding:', hasCompletedOnboarding);
+    console.log('Redirecting to profile setup, comprehensive onboarding incomplete');
     return <Navigate to="/profile-setup" replace />;
   }
 
   // If user has completed onboarding but is on the profile setup page, redirect to dashboard
   if (hasCompletedOnboarding && location.pathname === '/profile-setup') {
-    console.log('User has completed onboarding, redirecting to dashboard');
+    console.log('User has completed comprehensive onboarding, redirecting to dashboard');
     return <Navigate to="/dashboard" replace />;
   }
 
