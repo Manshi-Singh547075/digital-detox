@@ -18,6 +18,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const checkUserProfile = async () => {
       if (user) {
         try {
+          console.log('Checking profile for user:', user.id);
           const { data: profile, error } = await supabase
             .from('profiles')
             .select('full_name, username')
@@ -56,14 +57,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-6"></div>
+          <p className="text-gray-600 text-lg">Loading your digital wellness dashboard...</p>
+          <p className="text-gray-500 text-sm mt-2">Setting up your personalized experience</p>
         </div>
       </div>
     );
   }
 
   if (!user) {
+    console.log('No user found, redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 
@@ -75,6 +78,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // If user has completed onboarding but is on the profile setup page, redirect to dashboard
   if (hasCompletedOnboarding && location.pathname === '/profile-setup') {
+    console.log('User has completed onboarding, redirecting to dashboard');
     return <Navigate to="/dashboard" replace />;
   }
 

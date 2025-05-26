@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, LogIn, UserPlus, AlertCircle } from 'lucide-react';
+import { Shield, LogIn, UserPlus, AlertCircle, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -23,6 +24,7 @@ const Auth = () => {
   // Redirect if already logged in - let ProtectedRoute handle onboarding flow
   useEffect(() => {
     if (user) {
+      // Let ProtectedRoute determine where to redirect based on profile completion
       navigate('/dashboard');
     }
   }, [user, navigate]);
@@ -59,10 +61,10 @@ const Auth = () => {
         }
       } else if (data.user) {
         toast({
-          title: "Account created!",
-          description: "Welcome to DigitalDetox! Let's set up your profile.",
+          title: "🎉 Account created!",
+          description: "Welcome to DigitalDetox! Let's set up your personalized dashboard.",
         });
-        // ProtectedRoute will handle redirecting to profile setup
+        // ProtectedRoute will handle redirecting to profile setup or dashboard
       }
     } catch (error) {
       toast({
@@ -92,6 +94,12 @@ const Auth = () => {
             description: "Invalid email or password. Please check your credentials.",
             variant: "destructive",
           });
+        } else if (error.message.includes('Email not confirmed')) {
+          toast({
+            title: "Email not confirmed",
+            description: "Please check your email and click the confirmation link, or contact support.",
+            variant: "destructive",
+          });
         } else {
           toast({
             title: "Login failed",
@@ -101,7 +109,7 @@ const Auth = () => {
         }
       } else if (data.user) {
         toast({
-          title: "Welcome back!",
+          title: "🚀 Welcome back!",
           description: "Successfully logged in to DigitalDetox.",
         });
         // ProtectedRoute will handle onboarding flow
@@ -126,16 +134,22 @@ const Auth = () => {
               <Shield className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">DigitalDetox</h1>
-              <p className="text-blue-200">Harmony Space</p>
+              <h1 className="text-3xl font-bold text-white">DigitalDetox</h1>
+              <p className="text-blue-200 flex items-center justify-center gap-1">
+                <Sparkles className="w-4 h-4" />
+                AI-Powered Wellness Platform
+              </p>
             </div>
           </div>
+          <p className="text-white/90 text-lg">
+            Transform your digital habits with intelligent insights
+          </p>
         </div>
 
         <Card className="bg-white/10 backdrop-blur-md border-white/20">
           <CardHeader>
-            <CardTitle className="text-white text-center">Welcome</CardTitle>
-            <CardDescription className="text-blue-200 text-center">
+            <CardTitle className="text-white text-center text-2xl">Welcome</CardTitle>
+            <CardDescription className="text-blue-200 text-center text-lg">
               Join your digital wellness journey
             </CardDescription>
           </CardHeader>
@@ -163,7 +177,7 @@ const Auth = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70"
+                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70 h-12"
                     />
                   </div>
                   <div className="space-y-2">
@@ -175,12 +189,12 @@ const Auth = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70"
+                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70 h-12"
                     />
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-white text-blue-700 hover:bg-blue-50"
+                    className="w-full bg-white text-blue-700 hover:bg-blue-50 h-12 text-lg font-semibold"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Signing in...' : 'Sign In'}
@@ -199,7 +213,7 @@ const Auth = () => {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
-                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70"
+                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70 h-12"
                     />
                   </div>
                   <div className="space-y-2">
@@ -211,7 +225,7 @@ const Auth = () => {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       required
-                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70"
+                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70 h-12"
                     />
                   </div>
                   <div className="space-y-2">
@@ -223,7 +237,7 @@ const Auth = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70"
+                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70 h-12"
                     />
                   </div>
                   <div className="space-y-2">
@@ -235,15 +249,15 @@ const Auth = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70"
+                      className="bg-white/10 border-white/30 text-white placeholder:text-white/70 h-12"
                     />
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-white text-blue-700 hover:bg-blue-50"
+                    className="w-full bg-gradient-to-r from-green-400 to-blue-500 text-white hover:from-green-500 hover:to-blue-600 h-12 text-lg font-semibold"
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Creating account...' : 'Create Account'}
+                    {isLoading ? 'Creating account...' : '🚀 Create Account'}
                   </Button>
                 </form>
               </TabsContent>
