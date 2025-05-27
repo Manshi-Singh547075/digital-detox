@@ -78,6 +78,7 @@ const ProfileSetup = () => {
   }, [user]);
 
   const handleInputChange = (field: string, value: string | boolean) => {
+    console.log(`Updating ${field} with value:`, value);
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -85,26 +86,36 @@ const ProfileSetup = () => {
   };
 
   const handleNext = () => {
+    console.log('Current step:', currentStep, 'Moving to:', currentStep + 1);
     if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
+      setCurrentStep(prev => prev + 1);
     }
   };
 
   const handleBack = () => {
+    console.log('Current step:', currentStep, 'Moving to:', currentStep - 1);
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      setCurrentStep(prev => prev - 1);
     }
   };
 
   const validateStep = () => {
+    console.log('Validating step:', currentStep, 'Form data:', formData);
     switch (currentStep) {
       case 1:
-        return formData.fullName && formData.username && formData.age && formData.role;
+        const step1Valid = formData.fullName && formData.username && formData.age && formData.role;
+        console.log('Step 1 validation:', step1Valid);
+        return step1Valid;
       case 2:
-        return formData.primaryGoal && formData.dailyScreenTimeGoal;
+        const step2Valid = formData.primaryGoal && formData.dailyScreenTimeGoal;
+        console.log('Step 2 validation:', step2Valid);
+        return step2Valid;
       case 3:
-        return formData.currentScreenTime && formData.deviceUsage;
+        const step3Valid = formData.currentScreenTime && formData.deviceUsage;
+        console.log('Step 3 validation:', step3Valid);
+        return step3Valid;
       case 4:
+        console.log('Step 4 validation: always true');
         return true; // Optional step - always valid
       default:
         return false;
@@ -113,6 +124,13 @@ const ProfileSetup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Only submit if we're on the final step
+    if (currentStep !== 4) {
+      console.log('Not on final step, preventing submission');
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
@@ -230,7 +248,8 @@ const ProfileSetup = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Only show form on final step OR prevent form submission on non-final steps */}
+            <form onSubmit={currentStep === 4 ? handleSubmit : (e) => e.preventDefault()} className="space-y-6">
               {/* Step 1: Basic Information */}
               {currentStep === 1 && (
                 <div className="space-y-6">
@@ -383,7 +402,10 @@ const ProfileSetup = () => {
                     <Label className="text-white text-lg">Do you have children?</Label>
                     <RadioGroup 
                       value={formData.hasChildren ? "yes" : "no"} 
-                      onValueChange={(value) => handleInputChange('hasChildren', value === "yes")}
+                      onValueChange={(value) => {
+                        console.log('Radio group changed:', value);
+                        handleInputChange('hasChildren', value === "yes");
+                      }}
                       className="flex flex-col space-y-3"
                     >
                       <div className="flex items-center space-x-3">
