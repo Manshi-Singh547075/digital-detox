@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Shield, User, Target, Clock, Users, CheckCircle, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -104,7 +105,7 @@ const ProfileSetup = () => {
       case 3:
         return formData.currentScreenTime && formData.deviceUsage;
       case 4:
-        return true; // Optional step
+        return true; // Optional step - always valid
       default:
         return false;
     }
@@ -375,32 +376,41 @@ const ProfileSetup = () => {
                 </div>
               )}
 
-              {/* Step 4: Preferences & Family */}
+              {/* Step 4: Fixed Preferences & Family */}
               {currentStep === 4 && (
                 <div className="space-y-6">
                   <div className="space-y-4">
                     <Label className="text-white text-lg">Do you have children?</Label>
-                    <div className="flex space-x-4">
-                      <Button
-                        type="button"
-                        variant={formData.hasChildren ? "default" : "outline"}
-                        onClick={() => handleInputChange('hasChildren', true)}
-                        className={`h-12 px-8 text-lg ${formData.hasChildren ? "bg-white text-blue-700" : "bg-white/10 text-white border-white/30 hover:bg-white/20"}`}
-                      >
-                        Yes
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={!formData.hasChildren ? "default" : "outline"}
-                        onClick={() => handleInputChange('hasChildren', false)}
-                        className={`h-12 px-8 text-lg ${!formData.hasChildren ? "bg-white text-blue-700" : "bg-white/10 text-white border-white/30 hover:bg-white/20"}`}
-                      >
-                        No
-                      </Button>
-                    </div>
+                    <RadioGroup 
+                      value={formData.hasChildren ? "yes" : "no"} 
+                      onValueChange={(value) => handleInputChange('hasChildren', value === "yes")}
+                      className="flex flex-col space-y-3"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem 
+                          value="yes" 
+                          id="children-yes" 
+                          className="border-white/30 text-white data-[state=checked]:border-white data-[state=checked]:bg-white"
+                        />
+                        <Label htmlFor="children-yes" className="text-white text-lg cursor-pointer">
+                          Yes, I have children
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem 
+                          value="no" 
+                          id="children-no" 
+                          className="border-white/30 text-white data-[state=checked]:border-white data-[state=checked]:bg-white"
+                        />
+                        <Label htmlFor="children-no" className="text-white text-lg cursor-pointer">
+                          No, I don't have children
+                        </Label>
+                      </div>
+                    </RadioGroup>
                   </div>
+
                   {formData.hasChildren && (
-                    <div className="space-y-2">
+                    <div className="space-y-2 animate-fade-in">
                       <Label htmlFor="childrenAges" className="text-white text-lg">Children's Ages</Label>
                       <Input
                         id="childrenAges"
@@ -412,6 +422,7 @@ const ProfileSetup = () => {
                       />
                     </div>
                   )}
+
                   <div className="space-y-2">
                     <Label htmlFor="concerns" className="text-white text-lg">Any specific concerns or challenges? (Optional)</Label>
                     <Textarea
