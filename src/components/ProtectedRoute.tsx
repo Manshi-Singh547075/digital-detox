@@ -49,9 +49,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             setHasCompletedOnboarding(false);
           } else {
             // Check if user has completed comprehensive onboarding
-            // Updated logic to be more lenient and match what the form actually saves
+            // Must have onboarding_completed flag AND essential profile data
             const isOnboardingComplete = Boolean(
-              profile.onboarding_completed &&
+              profile.onboarding_completed === true &&
               profile.full_name && 
               profile.username && 
               profile.age &&

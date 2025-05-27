@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -151,10 +150,9 @@ const ProfileSetup = () => {
         description: "Your personalized wellness dashboard is ready. Let's start your digital wellness journey!",
       });
 
-      // Force a small delay to ensure the database update is processed
-      setTimeout(() => {
-        navigate('/dashboard', { replace: true });
-      }, 1000);
+      // Navigate immediately without delay
+      console.log('Navigating to dashboard...');
+      navigate('/dashboard', { replace: true });
 
     } catch (error: any) {
       console.error('Profile setup error:', error);
