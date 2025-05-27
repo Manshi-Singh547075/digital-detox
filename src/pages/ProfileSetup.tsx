@@ -151,7 +151,11 @@ const ProfileSetup = () => {
         description: "Your personalized wellness dashboard is ready. Let's start your digital wellness journey!",
       });
 
-      navigate('/dashboard');
+      // Force a small delay to ensure the database update is processed
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 1000);
+
     } catch (error: any) {
       console.error('Profile setup error:', error);
       toast({

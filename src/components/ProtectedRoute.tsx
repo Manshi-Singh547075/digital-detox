@@ -49,18 +49,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             setHasCompletedOnboarding(false);
           } else {
             // Check if user has completed comprehensive onboarding
-            // For comprehensive profile, we need digital wellness data
+            // Updated logic to be more lenient and match what the form actually saves
             const isOnboardingComplete = Boolean(
+              profile.onboarding_completed &&
               profile.full_name && 
               profile.username && 
               profile.age &&
               profile.role &&
               profile.primary_goal &&
               profile.daily_screen_time_goal &&
-              profile.onboarding_completed
+              profile.current_screen_time
             );
             console.log('Profile data:', profile);
             console.log('Is comprehensive onboarding complete:', isOnboardingComplete);
+            console.log('onboarding_completed flag:', profile.onboarding_completed);
             setHasCompletedOnboarding(isOnboardingComplete);
           }
         } catch (error) {
