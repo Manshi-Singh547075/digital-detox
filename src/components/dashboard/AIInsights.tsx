@@ -1,162 +1,267 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Brain, TrendingUp, Clock, Heart, AlertTriangle, Lightbulb } from 'lucide-react';
+import { Brain, TrendingUp, Target, AlertTriangle, CheckCircle, Lightbulb, Calendar } from 'lucide-react';
 
-const AIInsights = () => {
+interface Profile {
+  current_screen_time?: number | null;
+  daily_screen_time_goal?: number | null;
+  primary_goal?: string | null;
+  role?: string | null;
+  age?: number | null;
+  device_usage?: string | null;
+  app_preferences?: string | null;
+  has_children?: boolean | null;
+}
+
+interface AIInsightsProps {
+  profile: Profile | null;
+}
+
+const AIInsights = ({ profile }: AIInsightsProps) => {
+  // Generate personalized insights based on user profile
+  const generateInsights = () => {
+    if (!profile) {
+      return {
+        patterns: ["Complete your profile setup to get personalized insights"],
+        predictions: ["AI analysis will be available once you provide your information"],
+        recommendations: ["Set up your profile to receive tailored recommendations"]
+      };
+    }
+
+    const currentUsage = profile.current_screen_time || 0;
+    const goal = profile.daily_screen_time_goal || 0;
+    const role = profile.role || 'user';
+    const primaryGoal = profile.primary_goal || 'general';
+    const age = profile.age || 25;
+
+    const patterns = [];
+    const predictions = [];
+    const recommendations = [];
+
+    // Usage patterns based on current vs goal
+    if (currentUsage > goal) {
+      patterns.push(`You're currently using ${currentUsage - goal} hours more than your goal each day`);
+      patterns.push(`Your usage is ${Math.round(((currentUsage - goal) / goal) * 100)}% above your target`);
+    } else {
+      patterns.push(`You're ${goal - currentUsage} hours under your daily goal - great discipline!`);
+    }
+
+    // Role-specific patterns
+    if (role === 'student') {
+      patterns.push("Students your age typically use devices 6-8 hours daily");
+      patterns.push("Your usage pattern suggests focus on educational and social apps");
+    } else if (role === 'professional') {
+      patterns.push("Professionals typically have higher usage during weekdays");
+      patterns.push("Work-related apps dominate your screen time during business hours");
+    } else if (role === 'parent') {
+      patterns.push("Parents often have fragmented usage patterns throughout the day");
+      if (profile.has_children) {
+        patterns.push("Family time goals are important for maintaining work-life balance");
+      }
+    }
+
+    // Predictions based on goals
+    if (primaryGoal === 'reduce-usage') {
+      predictions.push("With consistent effort, you could reduce usage by 25% in 2 weeks");
+      predictions.push("Setting app timers could save you 1-2 hours daily");
+    } else if (primaryGoal === 'better-balance') {
+      predictions.push("Improved scheduling could increase productivity by 30%");
+      predictions.push("Work-life separation will improve significantly with boundaries");
+    } else if (primaryGoal === 'sleep-better') {
+      predictions.push("Reducing evening screen time by 1 hour improves sleep quality by 40%");
+      predictions.push("Blue light reduction after 8 PM shows measurable results in 1 week");
+    } else if (primaryGoal === 'productivity') {
+      predictions.push("Focus modes during work hours could boost efficiency by 35%");
+      predictions.push("Minimizing notifications increases deep work time by 2 hours daily");
+    }
+
+    // Age-specific recommendations
+    if (age < 25) {
+      recommendations.push("Young adults benefit from structured social media breaks");
+      recommendations.push("Consider the 20-20-20 rule: every 20 minutes, look 20 feet away for 20 seconds");
+    } else if (age > 35) {
+      recommendations.push("Establish clear work-home digital boundaries");
+      recommendations.push("Model healthy digital habits for family members");
+    }
+
+    // Goal-specific recommendations
+    if (primaryGoal === 'family-time') {
+      recommendations.push("Create device-free zones during meals and family activities");
+      recommendations.push("Use shared screen time for educational or bonding activities");
+    } else if (primaryGoal === 'mindfulness') {
+      recommendations.push("Practice digital mindfulness with regular tech breaks");
+      recommendations.push("Use meditation apps to replace mindless scrolling");
+    }
+
+    // Device-specific recommendations
+    if (profile.device_usage === 'smartphone') {
+      recommendations.push("Enable grayscale mode to reduce visual stimulation");
+      recommendations.push("Move social apps off your home screen");
+    } else if (profile.device_usage === 'laptop') {
+      recommendations.push("Use website blockers during focused work sessions");
+      recommendations.push("Set up separate user accounts for work and personal use");
+    }
+
+    return { patterns, predictions, recommendations };
+  };
+
+  const { patterns, predictions, recommendations } = generateInsights();
+
+  const getGoalProgress = () => {
+    if (!profile?.current_screen_time || !profile?.daily_screen_time_goal) return 0;
+    return Math.min((profile.daily_screen_time_goal / profile.current_screen_time) * 100, 100);
+  };
+
+  const progress = getGoalProgress();
+
   const insights = [
     {
-      id: 1,
-      type: 'pattern',
-      icon: TrendingUp,
-      title: 'Social Media Stress Pattern Detected',
-      description: 'You spend 40% more time on social media when stressed. Your usage spikes between 8-10 PM on weekdays.',
-      impact: 'high',
-      recommendation: 'Try our evening mindfulness exercises instead of scrolling during these hours.',
-      color: 'red'
+      title: "Usage Patterns",
+      icon: <TrendingUp className="w-5 h-5 text-blue-600" />,
+      items: patterns,
+      color: "bg-blue-50 border-blue-200"
     },
     {
-      id: 2,
-      type: 'positive',
-      icon: Heart,
-      title: 'Improved Sleep Correlation',
-      description: 'Your screen time has decreased by 30 minutes before bed, correlating with better sleep quality reports.',
-      impact: 'positive',
-      recommendation: 'Keep up the great work! Consider extending your evening digital detox by another 15 minutes.',
-      color: 'green'
+      title: "AI Predictions",
+      icon: <Brain className="w-5 h-5 text-purple-600" />,
+      items: predictions,
+      color: "bg-purple-50 border-purple-200"
     },
     {
-      id: 3,
-      type: 'warning',
-      icon: AlertTriangle,
-      title: 'Weekend Binge Pattern',
-      description: 'Your weekend screen time is 65% higher than weekdays, with 4+ hour entertainment sessions.',
-      impact: 'medium',
-      recommendation: 'Set weekend time limits and plan offline activities to break long usage sessions.',
-      color: 'orange'
-    },
-    {
-      id: 4,
-      type: 'opportunity',
-      icon: Lightbulb,
-      title: 'Productivity Opportunity',
-      description: 'You have 2.5 hours of fragmented app switching daily. Consolidating could boost focus.',
-      impact: 'medium',
-      recommendation: 'Try our focus mode during work hours to minimize app switching and increase productivity.',
-      color: 'blue'
+      title: "Smart Recommendations",
+      icon: <Lightbulb className="w-5 h-5 text-orange-600" />,
+      items: recommendations,
+      color: "bg-orange-50 border-orange-200"
     }
   ];
 
-  const getColorClasses = (color: string) => {
-    const colors = {
-      red: 'border-red-200 bg-red-50',
-      green: 'border-green-200 bg-green-50',
-      orange: 'border-orange-200 bg-orange-50',
-      blue: 'border-blue-200 bg-blue-50'
-    };
-    return colors[color as keyof typeof colors] || colors.blue;
-  };
-
-  const getIconColor = (color: string) => {
-    const colors = {
-      red: 'text-red-600',
-      green: 'text-green-600',
-      orange: 'text-orange-600',
-      blue: 'text-blue-600'
-    };
-    return colors[color as keyof typeof colors] || colors.blue;
-  };
-
   return (
     <div className="space-y-6">
+      {/* Progress Overview */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-purple-600" />
-            AI-Powered Digital Wellness Insights
+            <Target className="w-5 h-5 text-green-600" />
+            Goal Progress for {profile?.role || 'User'}
           </CardTitle>
           <CardDescription>
-            Personalized analysis of your digital behavior patterns and recommendations for improvement
+            Your journey towards {profile?.primary_goal?.replace('-', ' ') || 'better digital habits'}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-6">
-            {insights.map((insight) => (
-              <div
-                key={insight.id}
-                className={`p-6 rounded-lg border ${getColorClasses(insight.color)}`}
-              >
-                <div className="flex items-start gap-4">
-                  <div className={`p-2 rounded-lg bg-white ${getIconColor(insight.color)}`}>
-                    <insight.icon className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 space-y-3">
-                    <h3 className="font-semibold text-gray-900">{insight.title}</h3>
-                    <p className="text-gray-700">{insight.description}</p>
-                    <div className="bg-white p-3 rounded border border-gray-200">
-                      <p className="text-sm font-medium text-gray-600 mb-1">💡 Recommendation:</p>
-                      <p className="text-sm text-gray-700">{insight.recommendation}</p>
-                    </div>
-                    <Button size="sm" variant="outline" className="mt-2">
-                      Apply Suggestion
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">{Math.round(progress)}%</div>
+              <p className="text-sm text-gray-600">Goal Achievement</p>
+            </div>
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">{profile?.current_screen_time || 0}h</div>
+              <p className="text-sm text-gray-600">Current Usage</p>
+            </div>
+            <div className="text-center p-4 bg-purple-50 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600">{profile?.daily_screen_time_goal || 0}h</div>
+              <p className="text-sm text-gray-600">Target Goal</p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-blue-600" />
-              Weekly Insights Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Patterns Identified</span>
-                <span className="font-semibold">12</span>
+      {/* AI Insights Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {insights.map((insight, index) => (
+          <Card key={index} className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                {insight.icon}
+                {insight.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {insight.items.map((item, itemIndex) => (
+                  <div 
+                    key={itemIndex} 
+                    className={`p-3 rounded-lg border ${insight.color}`}
+                  >
+                    <p className="text-sm text-gray-700">{item}</p>
+                  </div>
+                ))}
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Recommendations Applied</span>
-                <span className="font-semibold text-green-600">8</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Wellness Score Improvement</span>
-                <span className="font-semibold text-blue-600">+15%</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Stress Indicators</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                <span className="text-sm">Late night scrolling increased</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                <span className="text-sm">App switching frequency up 25%</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm">Meditation app usage steady</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
       </div>
+
+      {/* Personalized Action Plan */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-indigo-600" />
+            Your Personalized Action Plan
+          </CardTitle>
+          <CardDescription>
+            Tailored steps for {profile?.full_name || 'your'} {profile?.primary_goal?.replace('-', ' ') || 'digital wellness'} journey
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              <div>
+                <p className="font-medium text-green-800">Week 1: Foundation</p>
+                <p className="text-sm text-green-700">
+                  {profile?.primary_goal === 'reduce-usage' 
+                    ? 'Start with 30-minute daily reduction in entertainment apps'
+                    : profile?.primary_goal === 'productivity'
+                    ? 'Implement 25-minute focused work blocks with 5-minute breaks'
+                    : 'Establish baseline tracking and identify usage triggers'
+                  }
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <Target className="w-5 h-5 text-blue-600" />
+              <div>
+                <p className="font-medium text-blue-800">Week 2-3: Optimization</p>
+                <p className="text-sm text-blue-700">
+                  {profile?.role === 'student'
+                    ? 'Balance study apps with entertainment, set evening cut-off times'
+                    : profile?.role === 'professional'
+                    ? 'Separate work and personal device usage with clear boundaries'
+                    : 'Refine your digital habits based on week 1 insights'
+                  }
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
+              <AlertTriangle className="w-5 h-5 text-purple-600" />
+              <div>
+                <p className="font-medium text-purple-800">Week 4+: Mastery</p>
+                <p className="text-sm text-purple-700">
+                  Maintain new habits, adjust goals based on progress, and explore advanced wellness features
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-6">
+            <Button size="sm">
+              Start Action Plan
+            </Button>
+            <Button size="sm" variant="outline">
+              Customize Plan
+            </Button>
+            <Badge variant="secondary" className="px-3 py-1">
+              {profile?.role || 'User'} optimized
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

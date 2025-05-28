@@ -2,164 +2,191 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Smartphone, Laptop, Tablet, Chrome, MessageCircle, Music, Play, Camera, Instagram } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Smartphone, Clock, TrendingUp, AlertTriangle, Settings } from 'lucide-react';
 
-const EnhancedAppBreakdown = () => {
-  const apps = [
-    { 
-      name: 'Instagram', 
-      time: '2h 15m', 
-      percentage: 35, 
-      category: 'Social', 
-      color: 'from-pink-500 to-purple-600',
-      bgColor: 'bg-gradient-to-r from-pink-500 to-purple-600',
-      icon: Instagram,
-      iconBg: 'bg-gradient-to-br from-pink-500 to-purple-600'
-    },
-    { 
-      name: 'Chrome', 
-      time: '1h 45m', 
-      percentage: 27, 
-      category: 'Productivity', 
-      color: 'from-blue-500 to-blue-600',
-      bgColor: 'bg-gradient-to-r from-blue-500 to-blue-600',
-      icon: Chrome,
-      iconBg: 'bg-gradient-to-br from-blue-500 to-blue-600'
-    },
-    { 
-      name: 'Netflix', 
-      time: '1h 30m', 
-      percentage: 23, 
-      category: 'Entertainment', 
-      color: 'from-red-500 to-red-600',
-      bgColor: 'bg-gradient-to-r from-red-500 to-red-600',
-      icon: Play,
-      iconBg: 'bg-gradient-to-br from-red-500 to-red-600'
-    },
-    { 
-      name: 'WhatsApp', 
-      time: '45m', 
-      percentage: 12, 
-      category: 'Communication', 
-      color: 'from-green-500 to-green-600',
-      bgColor: 'bg-gradient-to-r from-green-500 to-green-600',
-      icon: MessageCircle,
-      iconBg: 'bg-gradient-to-br from-green-500 to-green-600'
-    },
-    { 
-      name: 'Spotify', 
-      time: '30m', 
-      percentage: 8, 
-      category: 'Music', 
-      color: 'from-green-400 to-green-500',
-      bgColor: 'bg-gradient-to-r from-green-400 to-green-500',
-      icon: Music,
-      iconBg: 'bg-gradient-to-br from-green-400 to-green-500'
-    }
-  ];
+interface Profile {
+  current_screen_time?: number | null;
+  daily_screen_time_goal?: number | null;
+  primary_goal?: string | null;
+  role?: string | null;
+  age?: number | null;
+  device_usage?: string | null;
+  app_preferences?: string | null;
+}
 
-  const devices = [
-    { 
-      name: 'iPhone', 
-      time: '4h 10m', 
-      percentage: 65, 
-      icon: Smartphone, 
-      color: 'text-purple-600',
-      bgGradient: 'from-purple-500 to-purple-600'
-    },
-    { 
-      name: 'Active', 
-      time: '20m', 
-      percentage: 3, 
-      icon: Tablet, 
-      color: 'text-purple-600',
-      bgGradient: 'from-purple-400 to-purple-500'
+interface EnhancedAppBreakdownProps {
+  profile: Profile | null;
+}
+
+const EnhancedAppBreakdown = ({ profile }: EnhancedAppBreakdownProps) => {
+  // Generate dynamic app data based on user profile
+  const generateAppData = () => {
+    const currentUsage = profile?.current_screen_time || 6;
+    const preferences = profile?.app_preferences || 'general';
+    const role = profile?.role || 'user';
+
+    let apps = [];
+
+    // Base apps for everyone
+    if (preferences === 'social' || role === 'student') {
+      apps.push(
+        { name: 'Instagram', time: Math.round(currentUsage * 0.25 * 60), category: 'Social', color: 'bg-pink-500', trend: '+5' },
+        { name: 'WhatsApp', time: Math.round(currentUsage * 0.15 * 60), category: 'Communication', color: 'bg-green-500', trend: '+2' },
+        { name: 'TikTok', time: Math.round(currentUsage * 0.2 * 60), category: 'Entertainment', color: 'bg-purple-500', trend: '+8' }
+      );
     }
-  ];
+
+    if (preferences === 'games') {
+      apps.push(
+        { name: 'Gaming Apps', time: Math.round(currentUsage * 0.4 * 60), category: 'Games', color: 'bg-red-500', trend: '+12' },
+        { name: 'Steam', time: Math.round(currentUsage * 0.25 * 60), category: 'Games', color: 'bg-blue-600', trend: '+15' }
+      );
+    }
+
+    if (role === 'professional') {
+      apps.push(
+        { name: 'Slack', time: Math.round(currentUsage * 0.2 * 60), category: 'Work', color: 'bg-purple-600', trend: '+3' },
+        { name: 'Email', time: Math.round(currentUsage * 0.15 * 60), category: 'Work', color: 'bg-blue-500', trend: '+1' },
+        { name: 'Microsoft Teams', time: Math.round(currentUsage * 0.1 * 60), category: 'Work', color: 'bg-indigo-500', trend: '+2' }
+      );
+    }
+
+    if (role === 'student') {
+      apps.push(
+        { name: 'YouTube', time: Math.round(currentUsage * 0.3 * 60), category: 'Education', color: 'bg-red-600', trend: '+10' },
+        { name: 'Khan Academy', time: Math.round(currentUsage * 0.1 * 60), category: 'Education', color: 'bg-green-600', trend: '+1' }
+      );
+    }
+
+    if (role === 'parent') {
+      apps.push(
+        { name: 'Family Apps', time: Math.round(currentUsage * 0.2 * 60), category: 'Family', color: 'bg-orange-500', trend: '+4' },
+        { name: 'Photo Gallery', time: Math.round(currentUsage * 0.15 * 60), category: 'Family', color: 'bg-yellow-500', trend: '+2' }
+      );
+    }
+
+    // Always add some general apps
+    apps.push(
+      { name: 'Chrome Browser', time: Math.round(currentUsage * 0.15 * 60), category: 'Productivity', color: 'bg-gray-500', trend: '+3' },
+      { name: 'Settings', time: Math.round(currentUsage * 0.05 * 60), category: 'System', color: 'bg-gray-400', trend: '0' }
+    );
+
+    return apps.slice(0, 6); // Limit to 6 apps
+  };
+
+  const apps = generateAppData();
+  const totalTime = apps.reduce((sum, app) => sum + app.time, 0);
+
+  const getRecommendation = () => {
+    if (!profile) return "Complete your profile setup for personalized recommendations";
+    
+    const goal = profile.primary_goal;
+    if (goal === 'reduce-usage') {
+      return "Consider setting app timers for your most-used entertainment apps";
+    } else if (goal === 'productivity') {
+      return "Try using focus modes during work hours to minimize distractions";
+    } else if (goal === 'better-balance') {
+      return "Schedule specific times for social media to maintain work-life balance";
+    } else if (goal === 'family-time') {
+      return "Create device-free zones during family meals and activities";
+    } else if (goal === 'sleep-better') {
+      return "Enable night mode and reduce screen time 1 hour before bedtime";
+    }
+    return "Set daily limits for your most time-consuming apps";
+  };
 
   return (
-    <div className="grid lg:grid-cols-2 gap-8">
-      {/* Top Applications Card */}
-      <Card className="shadow-2xl border-0 bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 text-white overflow-hidden relative animate-fade-in">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 animate-pulse-slow"></div>
-        <CardHeader className="pb-4 relative z-10">
-          <CardTitle className="text-2xl font-bold flex items-center gap-3">
-            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-              <Smartphone className="w-6 h-6 text-white" />
-            </div>
-            Top Applications
-          </CardTitle>
-          <CardDescription className="text-gray-300 text-base">Your most used apps today</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6 relative z-10">
-          {apps.map((app, index) => (
-            <div key={index} className="group hover:bg-white/10 p-4 rounded-xl transition-all duration-300 animate-slide-in-right border border-white/10 backdrop-blur-sm" style={{ animationDelay: `${index * 100}ms` }}>
-              <div className="flex justify-between items-center mb-3">
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-2xl ${app.iconBg} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                    <app.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-white text-lg">{app.name}</span>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-sm px-3 py-1 rounded-full bg-white/20 text-gray-200">
-                        {app.category}
-                      </span>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Smartphone className="w-5 h-5 text-blue-600" />
+          App Usage Breakdown
+        </CardTitle>
+        <CardDescription>
+          Detailed breakdown of your {profile?.device_usage || 'device'} usage by application
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {/* Apps List */}
+          <div className="space-y-4">
+            {apps.map((app, index) => {
+              const percentage = totalTime > 0 ? (app.time / totalTime) * 100 : 0;
+              const hours = Math.floor(app.time / 60);
+              const minutes = app.time % 60;
+              
+              return (
+                <div key={index} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-3 h-3 rounded-full ${app.color}`}></div>
+                      <div>
+                        <p className="font-medium text-gray-900">{app.name}</p>
+                        <p className="text-sm text-gray-500">{app.category}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-gray-900">
+                        {hours > 0 ? `${hours}h ` : ''}{minutes}m
+                      </p>
+                      <div className="flex items-center gap-1">
+                        <TrendingUp className="w-3 h-3 text-green-600" />
+                        <span className="text-xs text-green-600">{app.trend} min</span>
+                      </div>
                     </div>
                   </div>
+                  <Progress value={percentage} className="h-2" />
                 </div>
-                <div className="text-right">
-                  <span className="text-2xl font-bold text-white">{app.time}</span>
-                  <p className="text-sm text-gray-300">{app.percentage}% of total</p>
-                </div>
-              </div>
-              <div className="relative">
-                <div className="h-3 bg-white/20 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full bg-gradient-to-r ${app.color} rounded-full transition-all duration-1000 ease-out`}
-                    style={{ width: `${app.percentage}%` }}
-                  />
-                </div>
+              );
+            })}
+          </div>
+
+          {/* Category Summary */}
+          <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+            <div>
+              <p className="text-sm text-gray-600">Most Used Category</p>
+              <p className="font-semibold text-gray-900">
+                {apps[0]?.category || 'Entertainment'}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Total Screen Time</p>
+              <p className="font-semibold text-gray-900">
+                {Math.floor(totalTime / 60)}h {totalTime % 60}m
+              </p>
+            </div>
+          </div>
+
+          {/* Personalized Recommendation */}
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="w-5 h-5 text-blue-600 mt-0.5" />
+              <div>
+                <p className="font-medium text-blue-800 mb-1">
+                  Recommendation for {profile?.role || 'you'}
+                </p>
+                <p className="text-sm text-blue-700">
+                  {getRecommendation()}
+                </p>
               </div>
             </div>
-          ))}
-        </CardContent>
-      </Card>
+          </div>
 
-      {/* Device Usage Card */}
-      <div className="space-y-6">
-        {devices.map((device, index) => (
-          <Card key={index} className="shadow-xl border-0 bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 text-white overflow-hidden relative animate-fade-in" style={{ animationDelay: `${(index + 1) * 200}ms` }}>
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 animate-pulse-slow"></div>
-            <CardContent className="p-8 relative z-10">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className={`p-4 bg-gradient-to-br ${device.bgGradient} rounded-2xl shadow-lg animate-float`}>
-                    <device.icon className="w-8 h-8 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-white">{device.name}</h3>
-                    <p className="text-gray-300">Device usage</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="text-3xl font-bold text-white">{device.time}</span>
-                  <p className="text-sm text-gray-300">{device.percentage}% of total time</p>
-                </div>
-              </div>
-              <div className="relative">
-                <div className="h-4 bg-white/20 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full bg-gradient-to-r ${device.bgGradient} rounded-full transition-all duration-1000 ease-out`}
-                    style={{ width: `${device.percentage}%` }}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
+          {/* Quick Actions */}
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline">
+              <Settings className="w-4 h-4 mr-2" />
+              Set App Limits
+            </Button>
+            <Button size="sm" variant="outline">
+              View Detailed Stats
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

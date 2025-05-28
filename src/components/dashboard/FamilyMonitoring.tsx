@@ -1,46 +1,91 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Users, Clock, Shield, AlertTriangle, CheckCircle, Settings } from 'lucide-react';
 
-const FamilyMonitoring = () => {
-  const familyMembers = [
-    {
-      id: 1,
-      name: 'Emma (Age 12)',
-      avatar: '👧',
-      screenTime: '3h 45m',
-      status: 'within_limits',
-      todayLimit: '4h',
-      apps: ['YouTube Kids', 'Minecraft', 'Khan Academy'],
-      alerts: 0,
-      wellnessScore: 85
-    },
-    {
-      id: 2,
-      name: 'Jake (Age 15)',
-      avatar: '👦',
-      screenTime: '6h 20m',
-      status: 'approaching_limit',
-      todayLimit: '6h 30m',
-      apps: ['Instagram', 'Discord', 'Duolingo'],
-      alerts: 1,
-      wellnessScore: 72
-    },
-    {
-      id: 3,
-      name: 'Sarah (Partner)',
-      avatar: '👩',
-      screenTime: '5h 10m',
-      status: 'healthy',
-      todayLimit: 'No limit',
-      apps: ['Work apps', 'News', 'Meditation'],
-      alerts: 0,
-      wellnessScore: 90
+interface Profile {
+  has_children?: boolean | null;
+  children_ages?: string | null;
+  role?: string | null;
+  full_name?: string | null;
+}
+
+interface FamilyMonitoringProps {
+  profile?: Profile | null;
+}
+
+const FamilyMonitoring = ({ profile }: FamilyMonitoringProps) => {
+  // Generate dynamic family data based on profile
+  const generateFamilyMembers = () => {
+    if (!profile?.has_children) {
+      return [];
     }
-  ];
+
+    // Parse children ages if available
+    const childrenAges = profile.children_ages ? profile.children_ages.split(',').map(age => parseInt(age.trim())) : [12, 8];
+    
+    return childrenAges.map((age, index) => {
+      const isTeenager = age >= 13;
+      const childName = `Child ${index + 1} (Age ${age})`;
+      const avatar = age < 8 ? '👶' : age < 13 ? '🧒' : age < 18 ? '👦' : '👨';
+      
+      return {
+        id: index + 1,
+        name: childName,
+        avatar,
+        screenTime: isTeenager ? `${4 + Math.floor(Math.random() * 3)}h ${Math.floor(Math.random() * 60)}m` : `${2 + Math.floor(Math.random() * 2)}h ${Math.floor(Math.random() * 60)}m`,
+        status: Math.random() > 0.7 ? 'approaching_limit' : 'within_limits',
+        todayLimit: isTeenager ? '6h' : '3h',
+        apps: isTeenager 
+          ? ['Instagram', 'TikTok', 'YouTube', 'Games']
+          : ['YouTube Kids', 'Educational Games', 'Drawing Apps'],
+        alerts: Math.random() > 0.8 ? 1 : 0,
+        wellnessScore: 70 + Math.floor(Math.random() * 25)
+      };
+    });
+  };
+
+  const familyMembers = generateFamilyMembers();
+
+  // If user has no children, show setup message
+  if (!profile?.has_children || familyMembers.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-blue-600" />
+            Family Digital Wellness
+          </CardTitle>
+          <CardDescription>
+            Set up family monitoring and digital wellness for your household
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-12">
+            <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Family Monitoring Setup
+            </h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              {profile?.role === 'parent' 
+                ? "Add your children's profiles to monitor their digital wellness and set healthy boundaries."
+                : "Family monitoring features will be available when you add family members to your account."
+              }
+            </p>
+            <div className="space-y-3">
+              <Button className="w-full max-w-sm">
+                {profile?.role === 'parent' ? 'Add Children Profiles' : 'Set Up Family Account'}
+              </Button>
+              <p className="text-sm text-gray-500">
+                Monitor screen time, set limits, and create healthy digital habits together
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -165,6 +210,7 @@ const FamilyMonitoring = () => {
         </CardContent>
       </Card>
 
+      {/* Family Goals and Safety Alerts sections remain the same */}
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -196,13 +242,15 @@ const FamilyMonitoring = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 bg-orange-50 rounded border border-orange-200">
-                <AlertTriangle className="w-4 h-4 text-orange-600" />
-                <div>
-                  <p className="text-sm font-medium">Jake exceeded screen time</p>
-                  <p className="text-xs text-gray-600">2 hours ago</p>
+              {familyMembers.some(member => member.alerts > 0) ? (
+                <div className="flex items-center gap-3 p-3 bg-orange-50 rounded border border-orange-200">
+                  <AlertTriangle className="w-4 h-4 text-orange-600" />
+                  <div>
+                    <p className="text-sm font-medium">Screen time limit approached</p>
+                    <p className="text-xs text-gray-600">2 hours ago</p>
+                  </div>
                 </div>
-              </div>
+              ) : null}
               <div className="flex items-center gap-3 p-3 bg-green-50 rounded border border-green-200">
                 <CheckCircle className="w-4 h-4 text-green-600" />
                 <div>

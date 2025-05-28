@@ -124,6 +124,25 @@ const Dashboard = () => {
     }
   };
 
+  // Determine which tabs to show based on user profile
+  const getAvailableTabs = () => {
+    const tabs = [
+      { value: "overview", label: "Overview", icon: Activity },
+      { value: "wellness", label: "Wellness", icon: Sparkles },
+      { value: "insights", label: "AI Insights", icon: Brain }
+    ];
+
+    // Only show family tab if user has children or is a parent
+    if (profile?.has_children || profile?.role === 'parent') {
+      tabs.push({ value: "family", label: "Family", icon: Users });
+    } else {
+      // Show community tab for users without children
+      tabs.push({ value: "community", label: "Community", icon: Users });
+    }
+
+    return tabs;
+  };
+
   if (profileLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
@@ -134,6 +153,8 @@ const Dashboard = () => {
       </div>
     );
   }
+
+  const availableTabs = getAvailableTabs();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 animate-fade-in">
@@ -204,6 +225,7 @@ const Dashboard = () => {
                     <p className="text-sm text-purple-600 font-semibold flex items-center gap-1">
                       <Sparkles className="w-3 h-3" />
                       {profile.role} • Age {profile.age}
+                      {profile.has_children && " • Parent"}
                     </p>
                   </div>
                 </div>
@@ -215,22 +237,16 @@ const Dashboard = () => {
         {/* Enhanced Animated Tabs */}
         <Tabs defaultValue="overview" className="space-y-8">
           <TabsList className="grid w-full lg:w-auto grid-cols-2 lg:grid-cols-4 bg-white/80 backdrop-blur-xl shadow-2xl border-2 border-gray-200/50 rounded-2xl p-2 animate-slide-in-right" style={{ animationDelay: '400ms' }}>
-            <TabsTrigger value="overview" className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white transition-all duration-300 rounded-xl">
-              <Activity className="w-4 h-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="wellness" className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white transition-all duration-300 rounded-xl">
-              <Sparkles className="w-4 h-4" />
-              Wellness
-            </TabsTrigger>
-            <TabsTrigger value="insights" className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white transition-all duration-300 rounded-xl">
-              <Brain className="w-4 h-4" />
-              AI Insights
-            </TabsTrigger>
-            <TabsTrigger value="family" className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white transition-all duration-300 rounded-xl">
-              <Users className="w-4 h-4" />
-              {profile?.has_children ? 'Family' : 'Community'}
-            </TabsTrigger>
+            {availableTabs.map((tab) => (
+              <TabsTrigger 
+                key={tab.value}
+                value={tab.value} 
+                className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white transition-all duration-300 rounded-xl"
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           <TabsContent value="overview" className="space-y-8">
@@ -253,9 +269,45 @@ const Dashboard = () => {
             <AIInsights profile={profile} />
           </TabsContent>
 
-          <TabsContent value="family">
-            <FamilyMonitoring profile={profile} />
-          </TabsContent>
+          {profile?.has_children || profile?.role === 'parent' ? (
+            <TabsContent value="family">
+              <FamilyMonitoring />
+            </TabsContent>
+          ) : (
+            <TabsContent value="community">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-blue-600" />
+                    Community & Support
+                  </CardTitle>
+                  <CardDescription>
+                    Connect with others on their digital wellness journey
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-12">
+                    <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      Join the Digital Wellness Community
+                    </h3>
+                    <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                      Connect with like-minded individuals working towards healthier digital habits. 
+                      Share experiences, get support, and celebrate milestones together.
+                    </p>
+                    <div className="space-y-3">
+                      <Button className="w-full max-w-sm">
+                        Explore Community Features
+                      </Button>
+                      <p className="text-sm text-gray-500">
+                        Coming soon: Forums, challenges, and peer support groups
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>
