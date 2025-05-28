@@ -14,6 +14,8 @@ interface Profile {
   age?: number | null;
   device_usage?: string | null;
   app_preferences?: string | null;
+  full_name?: string | null;
+  username?: string | null;
 }
 
 interface EnhancedAppBreakdownProps {

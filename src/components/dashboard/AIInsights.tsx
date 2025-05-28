@@ -14,6 +14,8 @@ interface Profile {
   device_usage?: string | null;
   app_preferences?: string | null;
   has_children?: boolean | null;
+  full_name?: string | null;
+  username?: string | null;
 }
 
 interface AIInsightsProps {
@@ -42,11 +44,13 @@ const AIInsights = ({ profile }: AIInsightsProps) => {
     const recommendations = [];
 
     // Usage patterns based on current vs goal
-    if (currentUsage > goal) {
+    if (currentUsage > goal && goal > 0) {
       patterns.push(`You're currently using ${currentUsage - goal} hours more than your goal each day`);
       patterns.push(`Your usage is ${Math.round(((currentUsage - goal) / goal) * 100)}% above your target`);
-    } else {
+    } else if (goal > 0) {
       patterns.push(`You're ${goal - currentUsage} hours under your daily goal - great discipline!`);
+    } else {
+      patterns.push(`Current usage: ${currentUsage} hours daily`);
     }
 
     // Role-specific patterns
@@ -203,7 +207,7 @@ const AIInsights = ({ profile }: AIInsightsProps) => {
             Your Personalized Action Plan
           </CardTitle>
           <CardDescription>
-            Tailored steps for {profile?.full_name || 'your'} {profile?.primary_goal?.replace('-', ' ') || 'digital wellness'} journey
+            Tailored steps for {profile?.username || 'your'} {profile?.primary_goal?.replace('-', ' ') || 'digital wellness'} journey
           </CardDescription>
         </CardHeader>
         <CardContent>
