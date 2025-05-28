@@ -19,12 +19,23 @@ interface Profile {
   username: string | null;
   full_name: string | null;
   avatar_url: string | null;
+  age: number | null;
+  role: string | null;
+  primary_goal: string | null;
+  daily_screen_time_goal: number | null;
+  current_screen_time: number | null;
+  device_usage: string | null;
+  app_preferences: string | null;
+  concerns: string | null;
+  has_children: boolean | null;
+  children_ages: string | null;
   created_at: string;
 }
 
 const Dashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('week');
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
   const { user, signOut } = useAuth();
   const { toast } = useToast();
 
@@ -36,6 +47,7 @@ const Dashboard = () => {
 
   const fetchProfile = async () => {
     try {
+      setProfileLoading(true);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -46,9 +58,12 @@ const Dashboard = () => {
         console.error('Error fetching profile:', error);
       } else {
         setProfile(data);
+        console.log('Fetched profile data:', data);
       }
     } catch (error) {
       console.error('Error:', error);
+    } finally {
+      setProfileLoading(false);
     }
   };
 
@@ -74,6 +89,51 @@ const Dashboard = () => {
     if (hour < 18) return "Good afternoon";
     return "Good evening";
   };
+
+  const getPersonalizedMessage = () => {
+    if (!profile) return "Ready to build healthier digital habits today?";
+    
+    if (profile.primary_goal === 'reduce-usage') {
+      return "Let's work on reducing your screen time today!";
+    } else if (profile.primary_goal === 'better-balance') {
+      return "Time to create that perfect work-life balance!";
+    } else if (profile.primary_goal === 'family-time') {
+      return "Ready for more quality family moments?";
+    } else if (profile.primary_goal === 'productivity') {
+      return "Let's boost your productivity today!";
+    } else if (profile.primary_goal === 'sleep-better') {
+      return "Working towards better sleep quality!";
+    } else if (profile.primary_goal === 'mindfulness') {
+      return "Being mindful of your digital habits today!";
+    }
+    return "Ready to build healthier digital habits today?";
+  };
+
+  const getProgressMessage = () => {
+    if (!profile?.current_screen_time || !profile?.daily_screen_time_goal) {
+      return "Setting up your wellness journey";
+    }
+    
+    const progress = (profile.daily_screen_time_goal / profile.current_screen_time) * 100;
+    if (progress >= 80) {
+      return "🎯 Excellent progress on your goals";
+    } else if (progress >= 60) {
+      return "🎯 Good progress on your goals";
+    } else {
+      return "🎯 Building towards your goals";
+    }
+  };
+
+  if (profileLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-6"></div>
+          <p className="text-gray-600 text-lg">Loading your personalized dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 animate-fade-in">
@@ -122,13 +182,13 @@ const Dashboard = () => {
               <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
                 {getGreeting()}, {profile?.full_name || user?.email?.split('@')[0]}! 👋
               </h1>
-              <p className="text-gray-600 text-xl mb-4">Ready to build healthier digital habits today?</p>
+              <p className="text-gray-600 text-xl mb-4">{getPersonalizedMessage()}</p>
               <div className="flex items-center gap-4">
                 <div className="px-4 py-2 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full border border-green-200">
-                  <span className="text-green-700 font-medium">🎯 On track with your goals</span>
+                  <span className="text-green-700 font-medium">{getProgressMessage()}</span>
                 </div>
                 <div className="px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full border border-blue-200">
-                  <span className="text-blue-700 font-medium">✨ 5-day streak!</span>
+                  <span className="text-blue-700 font-medium">✨ {profile?.role || 'Digital Wellness'} journey!</span>
                 </div>
               </div>
             </div>
@@ -143,7 +203,7 @@ const Dashboard = () => {
                     <p className="text-base text-gray-600">@{profile.username}</p>
                     <p className="text-sm text-purple-600 font-semibold flex items-center gap-1">
                       <Sparkles className="w-3 h-3" />
-                      Digital Wellness Journey
+                      {profile.role} • Age {profile.age}
                     </p>
                   </div>
                 </div>
@@ -169,32 +229,32 @@ const Dashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="family" className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white transition-all duration-300 rounded-xl">
               <Users className="w-4 h-4" />
-              Family
+              {profile?.has_children ? 'Family' : 'Community'}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
               <div className="lg:col-span-1">
-                <WellnessScore />
+                <WellnessScore profile={profile} />
               </div>
               <div className="lg:col-span-3">
-                <UsageChart period={selectedPeriod} onPeriodChange={setSelectedPeriod} />
+                <UsageChart period={selectedPeriod} onPeriodChange={setSelectedPeriod} profile={profile} />
               </div>
             </div>
-            <EnhancedAppBreakdown />
+            <EnhancedAppBreakdown profile={profile} />
           </TabsContent>
 
           <TabsContent value="wellness">
-            <DigitalWellnessInsights />
+            <DigitalWellnessInsights profile={profile} />
           </TabsContent>
 
           <TabsContent value="insights">
-            <AIInsights />
+            <AIInsights profile={profile} />
           </TabsContent>
 
           <TabsContent value="family">
-            <FamilyMonitoring />
+            <FamilyMonitoring profile={profile} />
           </TabsContent>
         </Tabs>
       </div>
