@@ -40,9 +40,7 @@ const Hero = () => {
                 Start Your Journey
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-700 font-semibold px-8 py-3 rounded-full transition-all duration-300 hover:scale-105">
-                Watch Demo
-              </Button>
+              
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-blue-200">
