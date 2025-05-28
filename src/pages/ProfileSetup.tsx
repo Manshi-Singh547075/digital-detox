@@ -87,7 +87,7 @@ const ProfileSetup = () => {
 
   const handleNext = () => {
     console.log('Current step:', currentStep, 'Moving to:', currentStep + 1);
-    if (currentStep < 4) {
+    if (currentStep < 4 && validateStep()) {
       setCurrentStep(prev => prev + 1);
     }
   };
@@ -122,15 +122,8 @@ const ProfileSetup = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Only submit if we're on the final step
-    if (currentStep !== 4) {
-      console.log('Not on final step, preventing submission');
-      return;
-    }
-    
+  const handleFinalSubmit = async () => {
+    console.log('Final submit triggered for step 4');
     setIsLoading(true);
 
     try {
@@ -248,8 +241,7 @@ const ProfileSetup = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Only show form on final step OR prevent form submission on non-final steps */}
-            <form onSubmit={currentStep === 4 ? handleSubmit : (e) => e.preventDefault()} className="space-y-6">
+            <div className="space-y-6">
               {/* Step 1: Basic Information */}
               {currentStep === 1 && (
                 <div className="space-y-6">
@@ -395,7 +387,7 @@ const ProfileSetup = () => {
                 </div>
               )}
 
-              {/* Step 4: Fixed Preferences & Family */}
+              {/* Step 4: Preferences & Family */}
               {currentStep === 4 && (
                 <div className="space-y-6">
                   <div className="space-y-4">
@@ -483,7 +475,8 @@ const ProfileSetup = () => {
                   </Button>
                 ) : (
                   <Button
-                    type="submit"
+                    type="button"
+                    onClick={handleFinalSubmit}
                     className="bg-gradient-to-r from-green-400 to-blue-500 text-white hover:from-green-500 hover:to-blue-600 font-semibold h-12 px-8 text-lg ml-auto"
                     disabled={isLoading}
                   >
@@ -491,7 +484,7 @@ const ProfileSetup = () => {
                   </Button>
                 )}
               </div>
-            </form>
+            </div>
           </CardContent>
         </Card>
       </div>
