@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -48,10 +47,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             console.log('No profile found, user needs to complete profile setup');
             setHasCompletedOnboarding(false);
           } else {
-            // Check if user has completed comprehensive onboarding
-            // Must have onboarding_completed flag AND essential profile data
-            const isOnboardingComplete = Boolean(
-              profile.onboarding_completed === true &&
+            // More lenient check - primarily rely on onboarding_completed flag
+            // but also verify essential data exists
+            const hasEssentialData = Boolean(
               profile.full_name && 
               profile.username && 
               profile.age &&
@@ -60,9 +58,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
               profile.daily_screen_time_goal &&
               profile.current_screen_time
             );
+            
+            // If onboarding_completed is explicitly true, trust it
+            // Otherwise, check if essential data exists
+            const isOnboardingComplete = profile.onboarding_completed === true || hasEssentialData;
+            
             console.log('Profile data:', profile);
-            console.log('Is comprehensive onboarding complete:', isOnboardingComplete);
+            console.log('Has essential data:', hasEssentialData);
             console.log('onboarding_completed flag:', profile.onboarding_completed);
+            console.log('Final onboarding status:', isOnboardingComplete);
+            
             setHasCompletedOnboarding(isOnboardingComplete);
           }
         } catch (error) {
@@ -78,7 +83,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     } else if (!loading) {
       setProfileLoading(false);
     }
-  }, [user, loading]);
+  }, [user, loading, location.pathname]); // Add location.pathname to dependencies
 
   // Show loading state while checking auth and profile
   if (loading || profileLoading) {
