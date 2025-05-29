@@ -14,6 +14,7 @@ import { Users, Activity, Brain, Shield, User, LogOut, Settings, Bell, Sparkles 
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import SettingsModal from '../components/dashboard/SettingsModal';
 
 interface Profile {
   id: string;
@@ -37,6 +38,7 @@ const Dashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('week');
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { toast } = useToast();
 
@@ -82,6 +84,14 @@ const Dashboard = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleSettingsClick = () => {
+    setSettingsOpen(true);
+  };
+
+  const handleProfileUpdate = () => {
+    fetchProfile(); // Refresh profile data after update
   };
 
   const getGreeting = () => {
@@ -183,7 +193,12 @@ const Dashboard = () => {
                 <Bell className="w-4 h-4 mr-2" />
                 Notifications
               </Button>
-              <Button variant="outline" size="sm" className="hover:scale-105 transition-transform duration-200">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="hover:scale-105 transition-transform duration-200"
+                onClick={handleSettingsClick}
+              >
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
               </Button>
@@ -325,6 +340,14 @@ const Dashboard = () => {
           )}
         </Tabs>
       </div>
+
+      {/* Settings Modal */}
+      <SettingsModal 
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        profile={profile}
+        onProfileUpdate={handleProfileUpdate}
+      />
     </div>
   );
 };
