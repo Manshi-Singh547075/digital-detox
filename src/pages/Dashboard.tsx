@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +8,8 @@ import EnhancedAppBreakdown from '../components/dashboard/EnhancedAppBreakdown';
 import DigitalWellnessInsights from '../components/dashboard/DigitalWellnessInsights';
 import FamilyMonitoring from '../components/dashboard/FamilyMonitoring';
 import WellnessScore from '../components/dashboard/WellnessScore';
+import RealTimeAnalysis from '../components/dashboard/RealTimeAnalysis';
+import SmartCharts from '../components/dashboard/SmartCharts';
 import { Users, Activity, Brain, Shield, User, LogOut, Settings, Bell, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -236,7 +237,7 @@ const Dashboard = () => {
 
         {/* Enhanced Animated Tabs */}
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid w-full lg:w-auto grid-cols-2 lg:grid-cols-4 bg-white/80 backdrop-blur-xl shadow-2xl border-2 border-gray-200/50 rounded-2xl p-2 animate-slide-in-right" style={{ animationDelay: '400ms' }}>
+          <TabsList className="grid w-full lg:w-auto grid-cols-2 lg:grid-cols-5 bg-white/80 backdrop-blur-xl shadow-2xl border-2 border-gray-200/50 rounded-2xl p-2 animate-slide-in-right" style={{ animationDelay: '400ms' }}>
             {availableTabs.map((tab) => (
               <TabsTrigger 
                 key={tab.value}
@@ -247,6 +248,13 @@ const Dashboard = () => {
                 {tab.label}
               </TabsTrigger>
             ))}
+            <TabsTrigger 
+              value="analysis" 
+              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white transition-all duration-300 rounded-xl"
+            >
+              <Brain className="w-4 h-4" />
+              AI Analysis
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-8">
@@ -267,6 +275,13 @@ const Dashboard = () => {
 
           <TabsContent value="insights">
             <AIInsights profile={profile} />
+          </TabsContent>
+
+          <TabsContent value="analysis">
+            <div className="space-y-8">
+              <RealTimeAnalysis profile={profile} />
+              <SmartCharts profile={profile} />
+            </div>
           </TabsContent>
 
           {profile?.has_children || profile?.role === 'parent' ? (
